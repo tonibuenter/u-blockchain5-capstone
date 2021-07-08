@@ -1,0 +1,13 @@
+.buttons {
+    margin: 1em;
+}
+
+.inputs {
+    margin: 1em;
+    padding: 1em;
+    border: solid 1px gray;
+}
+
+.inputs > div {
+    margin: 1em;
+}

@@ -1,0 +1,8 @@
+{
+  "providerUrl": "ws://localhost:8545",
+  "addresses": [
+  ],
+  "metamask": "0x3661B6fC9490ad5Aea8B1491A2A6E95266E73fB6",
+  "defaultAccount": 0,
+  "migratedTimestamp": "Fri Jun 04 2021 06:35:10 GMT+0200 (Central European Summer Time)"
+}
