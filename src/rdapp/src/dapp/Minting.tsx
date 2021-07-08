@@ -8,7 +8,6 @@ import TextField from '@material-ui/core/TextField';
 
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import bd from './config/blockchainData.json';
 import './styles.css';
@@ -25,9 +24,18 @@ export default function Minting() {
   const [mintTokenId, setToken] = useState('');
   const [addressTo, setAddressTo] = useState('');
 
+  const dropdownAddresses = [
+    bd.addresses[0],
+    bd.addresses[1],
+    bd.addresses[2],
+    bd.addresses[3],
+    bd.addresses[4],
+    '0x29c7560d5C0593AEE0d42Ab18018D5a208901F60'
+  ];
+
   return (
     <Container>
-      <h2>Minting</h2>
+      <h2>Minting & Transfer</h2>
       <div className={'inputs'}>
         <div>
           <TextField label="Mint Token Id" value={mintTokenId} onChange={(e: any) => setToken(e.target.value)} />
@@ -35,15 +43,11 @@ export default function Minting() {
         <div>
           <InputLabel htmlFor={'toAddresses'}>To Address</InputLabel>
           <Select id="toAddresses" value={addressTo} onChange={(e: any) => setAddressTo(e.target.value)}>
-            {bd.addresses.map((add, index) =>
-              index < 5 ? (
-                <MenuItem value={add}>
-                  {index}:{add}
-                </MenuItem>
-              ) : (
-                ''
-              )
-            )}
+            {dropdownAddresses.map((add, index) => (
+              <MenuItem value={add}>
+                {index}:{add}
+              </MenuItem>
+            ))}
           </Select>
         </div>
       </div>
@@ -51,6 +55,10 @@ export default function Minting() {
       <div className={'buttons'}>
         <Button variant="contained" color="primary" onClick={() => mint(mintTokenId, addressTo)}>
           Mint
+        </Button>
+        &nbsp;
+        <Button variant="contained" color="primary" onClick={() => transferByOwner(mintTokenId, addressTo)}>
+          Transfer by Owner (Metamask)
         </Button>
       </div>
 
@@ -65,9 +73,22 @@ export default function Minting() {
   async function mint(mintTokenId: any, addressTo: any) {
     try {
       dispatch({ type: ACTIONS.TX_ON });
-      debugger;
       const result = await myErc721Mintable.mint(addressTo, mintTokenId, { from: metaMask.address });
       console.log(`Mint tokenid ${mintTokenId} to ${addressTo}`);
+    } catch (err) {
+      console.log(err.message);
+    } finally {
+      dispatch({ type: ACTIONS.TX_OFF });
+    }
+  }
+
+  async function transferByOwner(mintTokenId: any, addressTo: any) {
+    try {
+      dispatch({ type: ACTIONS.TX_ON });
+      const result = await myErc721Mintable.transferFrom(metaMask.address, addressTo, mintTokenId, {
+        from: metaMask.address
+      });
+      console.log(`transferByOwner tokenid ${mintTokenId} to ${addressTo}`);
     } catch (err) {
       console.log(err.message);
     } finally {

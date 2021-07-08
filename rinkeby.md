@@ -90,10 +90,27 @@ Summary
 
 
 
-Mint Result
-===========
 
-Mint tokenid 17 to 0x9d41eb1c1eb9e8bc3724d46668d2aa073051b0cd (1)
+Mint & Transfer Result
+======================
+
+Mint tokenid 1 to 0x9d41eb1c1eb9e8bc3724d46668d2aa073051b0cd (1)
+Mint tokenid 2 to 0x9d41eb1c1eb9e8bc3724d46668d2aa073051b0cd (1)
+Mint tokenid 9 to 0x9d41eb1c1eb9e8bc3724d46668d2aa073051b0cd (1)
+Mint tokenid 8 to 0x9d41eb1c1eb9e8bc3724d46668d2aa073051b0cd (1)
+Mint tokenid 5 to 0x9d41eb1c1eb9e8bc3724d46668d2aa073051b0cd (1)
+
+Mint tokenid  3 to 0x2d93ae87f512d647e71f2046c162c42892f7ff3e (0)
+Mint tokenid  4 to 0x2d93ae87f512d647e71f2046c162c42892f7ff3e (0)
+Mint tokenid  6 to 0x2d93ae87f512d647e71f2046c162c42892f7ff3e (0)
+Mint tokenid  7 to 0x2d93ae87f512d647e71f2046c162c42892f7ff3e (0)
+Mint tokenid  9 to 0x2d93ae87f512d647e71f2046c162c42892f7ff3e (0)
+
+Mint tokenid 10 to 0x29c7560d5C0593AEE0d42Ab18018D5a208901F60 (0)
+
+
+Transfered tokenid 10 to 0x5135ca3ccaa5f8b5c875b93873141c4edccc98ff (0)
+
 
 Opensea.io Deployment
 =====================
