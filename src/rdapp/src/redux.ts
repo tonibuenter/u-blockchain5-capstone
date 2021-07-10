@@ -2,7 +2,6 @@ import { createStore } from 'redux';
 import { MetaMask } from './types';
 
 export const ACTIONS = {
-  SET_MM: 'SET_MM',
   TX_ON: 'TX_ON',
   TX_OFF: 'TX_OFF',
   SET_MY_ERC_721_MINTABLE: 'SET_MY_ERC_721_MINTABLE',
@@ -11,7 +10,7 @@ export const ACTIONS = {
 };
 
 export type ReduxState = {
-  metaMask: MetaMask;
+  mmStatus: any;
   tx: boolean;
   myErc721Mintable: any;
   solnSquareVerifier: any;
@@ -20,7 +19,7 @@ export type ReduxState = {
 };
 
 const initialState = (): ReduxState => ({
-  metaMask: { network: 'not-connected', address: '' },
+  mmStatus: {},
   tx: false,
   myErc721Mintable: null,
   solnSquareVerifier: null,
@@ -28,7 +27,7 @@ const initialState = (): ReduxState => ({
   airlineMap: {}
 });
 
-export let store: any;
+let store: any;
 
 export function createReduxStore() {
   store = createStore(reducer0);
@@ -37,14 +36,6 @@ export function createReduxStore() {
 
 function reducer0(state = initialState(), action: any) {
   switch (action.type) {
-    case ACTIONS.SET_MM: {
-      const { network, address } = action.payload;
-      const metaMask = { network, address };
-      return {
-        ...state,
-        metaMask
-      };
-    }
     case ACTIONS.TX_ON: {
       return {
         ...state,
@@ -81,7 +72,6 @@ function reducer0(state = initialState(), action: any) {
         ...action.payload
       };
     }
-    default:
-      return state;
   }
+  return state;
 }

@@ -1,45 +1,46 @@
 import { errorLog, successLog } from './utis';
-import Web3 from 'web3';
 
-export async function initWeb3() {
-  /// Find or Inject Web3 Provider
-  /// Modern dapp browsers...
-  let web3Provider, web3;
-  if (window.ethereum) {
-    web3Provider = window.ethereum;
+import detectEthereumProvider from '@metamask/detect-provider';
+
+export async function initWeb3(callback) {
+  // Modern dapp browsers...
+  let mmStatus = {};
+  const provider = await detectEthereumProvider();
+
+  if (!provider) {
+    alert('Please install MetaMask!');
+    mmStatus = 'MetaMask not installed on this Browser!';
+    callback({ mmStatus, provider: null });
+  }
+
+  // according to https://docs.metamask.io/guide/ethereum-provider.html#table-of-contents
+  // From now on, this should always be true:
+  // provider === window.ethereum
+
+  // META MASK
+  if (typeof window.ethereum !== 'undefined') {
+    console.log('MetaMask is installed!');
+    mmStatus.isMetaMask = window.ethereum.isMetaMask;
+    mmStatus.isConnected = window.ethereum.isConnected();
+
     try {
       // Request account access
-      await window.ethereum.enable();
-      successLog('DONE: window.ethereum.enable');
+      //await window.ethereum.enable();
+      mmStatus.accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      mmStatus.account0 = mmStatus.accounts[0];
     } catch (error) {
       errorLog('User denied account access');
     }
   }
-  // Legacy dapp browsers...
-  else if (window.web3) {
-    web3Provider = window.web3.currentProvider;
-    successLog('DONE: window.web3');
-  }
-  // If no injected web3 instance is detected, fall back to Ganache
-  else {
-    web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
-    successLog('DONE: Fallback to Ganache');
-  }
-  web3 = new Web3(web3Provider);
 
-  return { web3Provider, web3 };
+  window.ethereum.on('accountsChanged', (accounts) =>
+    callback({ mmStatus: { ...mmStatus, accounts, account0: accounts[0] } })
+  );
+
+  callback({ provider: window.ethereum, mmStatus });
 }
 
-export async function getMetaskAccountID() {
-  let metamaskAccountID;
-  try {
-    const res = await window.ethereum.request({ method: 'eth_accounts' });
-    console.log('getMetaskID:', res);
-    successLog(`getMetaskID: ${res.join(';')}`);
-    metamaskAccountID = res[0];
-  } catch (error) {
-    console.log('Error:', error);
-    errorLog('eth_accounts ' + error.message);
-  }
-  return metamaskAccountID;
+function mmListener() {
+  console.log('ethereum.networkVersion', window.ethereum.selectedAddress);
+  console.log('ethereum.selectedAddress', window.ethereum.selectedAddress);
 }

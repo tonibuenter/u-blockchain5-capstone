@@ -18,27 +18,14 @@ import Minting from './Minting';
 type DappMainProps = { data: number };
 
 export default function Dapp({ data }: DappMainProps) {
-  const [dataState, setDataState] = useState(data);
-
   const counterRef = useRef(0);
   counterRef.current++;
-
-  const useStyles = makeStyles((theme: any) => ({
-    root: {
-      flexGrow: 1,
-      backgroundColor: theme.palette.background.paper
-    }
-  }));
 
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event: any, newValue: any) => {
     setValue(newValue);
   };
-
-  useEffect(() => {
-    setTimeout(() => setDataState((n) => n + 1), 1000);
-  }, [dataState]);
 
   return (
     <Container>

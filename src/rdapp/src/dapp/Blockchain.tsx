@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ACTIONS, ReduxState } from '../redux';
-import { getMetaskAccountID, initWeb3 } from './metaMaskUtils';
+import { initWeb3 } from './metaMaskUtils';
 import myErc721MintableJson from './contracts/MyERC721Mintable.json';
 import solnSquareVerifierJson from './contracts/SolnSquareVerifier.json';
 import verifierJson from './contracts/Verifier.json';
-import { errorLog, addressFormatter } from './utis';
+import { addressFormatter, errorLog } from './utis';
+import ReactJson from 'react-json-view';
 import {
   Button,
   Container,
@@ -19,15 +20,17 @@ import {
 } from '@material-ui/core';
 import bd from './config/blockchainData.json';
 import './Dapp.css';
+import Web3 from 'web3';
 
 const contract = require('@truffle/contract');
 
 type Address = { address: string; name: string; eth: string };
 
 export default function Blockchain() {
-  const metaMask = useSelector((state: ReduxState) => state.metaMask);
   const myErc721Mintable = useSelector((state: ReduxState) => state.myErc721Mintable);
   const solnSquareVerifier = useSelector((state: ReduxState) => state.solnSquareVerifier);
+  const mmStatus = useSelector((state: ReduxState) => state.mmStatus);
+
   const verifier = useSelector((state: ReduxState) => state.verifier);
   const dispatch = useDispatch();
   const web3 = useSelector((state: any) => state.web3);
@@ -36,54 +39,55 @@ export default function Blockchain() {
 
   useEffect(() => {
     const _run = async () => {
-      if (!metaMask.address) {
-        let { web3Provider, web3 } = await initWeb3();
+      if (!mmStatus.account0) {
+        initWeb3(async ({ provider, mmStatus }: { provider: any; mmStatus: any }) => {
+          dispatch({ type: 'set', payload: { mmStatus } });
 
-        dispatch({ type: 'set', payload: { web3 } });
+          if (provider) {
+            const web3 = new Web3(provider);
+            dispatch({ type: 'set', payload: { web3 } });
 
-        let metamaskAccountID = await getMetaskAccountID();
+            let _myErc721Mintable = contract(myErc721MintableJson);
+            _myErc721Mintable.setProvider(provider);
 
-        let _myErc721Mintable = contract(myErc721MintableJson);
-        _myErc721Mintable.setProvider(web3Provider);
+            let _solnSquareVerifier = contract(solnSquareVerifierJson);
+            _solnSquareVerifier.setProvider(provider);
 
-        let _solnSquareVerifier = contract(solnSquareVerifierJson);
-        _solnSquareVerifier.setProvider(web3Provider);
+            let _verifier = contract(verifierJson);
+            _verifier.setProvider(provider);
 
-        let _verifier = contract(verifierJson);
-        _verifier.setProvider(web3Provider);
+            try {
+              let myErc721Mintable = await _myErc721Mintable.deployed();
+              dispatch({ type: ACTIONS.SET_MY_ERC_721_MINTABLE, payload: myErc721Mintable });
+            } catch (e) {
+              errorLog('myErc721Mintable: ' + e.message);
+            }
 
-        try {
-          let myErc721Mintable = await _myErc721Mintable.deployed();
-          dispatch({ type: ACTIONS.SET_MY_ERC_721_MINTABLE, payload: myErc721Mintable });
-        } catch (e) {
-          errorLog('myErc721Mintable: ' + e.message);
-        }
+            try {
+              let solnSquareVerifier = await _solnSquareVerifier.deployed();
+              dispatch({ type: ACTIONS.SET_SOLN_SQUARE_VERIFIER, payload: solnSquareVerifier });
+            } catch (e) {
+              errorLog('solnSquareVerifier: ' + e.message);
+            }
 
-        try {
-          let solnSquareVerifier = await _solnSquareVerifier.deployed();
-          dispatch({ type: ACTIONS.SET_SOLN_SQUARE_VERIFIER, payload: solnSquareVerifier });
-        } catch (e) {
-          errorLog('solnSquareVerifier: ' + e.message);
-        }
-
-        try {
-          let verifier = await _verifier.deployed();
-          dispatch({ type: ACTIONS.SET_VERIFIER, payload: verifier });
-        } catch (e) {
-          errorLog('verifier: ' + e.message);
-        }
-
-        dispatch({ type: ACTIONS.SET_MM, payload: { address: metamaskAccountID, network: '...' } });
+            try {
+              let verifier = await _verifier.deployed();
+              dispatch({ type: ACTIONS.SET_VERIFIER, payload: verifier });
+            } catch (e) {
+              errorLog('verifier: ' + e.message);
+            }
+          }
+        });
       }
     };
 
     _run();
-  }, [dispatch, metaMask]);
+  }, [dispatch, mmStatus.account0]);
 
   useEffect(() => {
     const _run = async () => {
       let _addresses: Address[] = [];
-      _addresses.push({ name: 'metamask', address: metaMask ? metaMask.address : '', eth: '0' });
+      _addresses.push({ name: 'metamask', address: mmStatus ? mmStatus.account0 : '', eth: '0' });
 
       _addresses.push({
         name: 'myErc721Mintable',
@@ -118,12 +122,17 @@ export default function Blockchain() {
     if (web3) {
       _run();
     }
-  }, [web3, refresh, dispatch, metaMask.address, metaMask]);
+  }, [web3, refresh, dispatch, myErc721Mintable, solnSquareVerifier, verifier, mmStatus]);
 
   return (
     <Container>
+      <h2>MetaMask Status</h2>
+      <div>
+        <ReactJson src={mmStatus || {}} />
+      </div>
+
       <h2>
-        Addresses{' '}
+        Addresses &nbsp;
         <Button variant="contained" color="primary" onClick={() => setRefresh((i) => i + 1)}>
           refresh
         </Button>
